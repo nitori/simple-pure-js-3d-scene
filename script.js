@@ -152,22 +152,20 @@ function update(delta) {
         .withRotation([0, 1, 0], -angle)
         .withScaling(1, 2, 1);
 
-    const mvp = matmul(proj, matmul(view, model));
-    const mvp2 = matmul(proj, matmul(view, model2));
+    let boxMvps = [
+        {mvp: matmul(proj, matmul(view, model)), color: '#ff0000'},
+        {mvp: matmul(proj, matmul(view, model2)), color: '#0000ff'},
+    ];
 
     boxMesh.faces.forEach(face => {
         for (let f = 0; f < face.length; f++) {
-            let p1 = worldToScreen(mvp, boxMesh.points[face[f]]);
-            let p2 = worldToScreen(mvp, boxMesh.points[face[(f + 1) % face.length]]);
-            if (p1 !== null && p2 !== null) {
-                drawLine(p1, p2);
-            }
-
-            let p3 = worldToScreen(mvp2, boxMesh.points[face[f]]);
-            let p4 = worldToScreen(mvp2, boxMesh.points[face[(f + 1) % face.length]]);
-            if (p3 !== null && p4 !== null) {
-                drawLine(p3, p4);
-            }
+            boxMvps.forEach(mvp => {
+                let p1 = worldToScreen(mvp.mvp, boxMesh.points[face[f]]);
+                let p2 = worldToScreen(mvp.mvp, boxMesh.points[face[(f + 1) % face.length]]);
+                if (p1 !== null && p2 !== null) {
+                    drawLine(p1, p2, mvp.color);
+                }
+            });
         }
     });
 }
