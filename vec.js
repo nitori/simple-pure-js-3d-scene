@@ -268,9 +268,10 @@ export function matmul(m1, m2) {
 export class Transform {
 
     /**
-     * @param translation
-     * @param scaling
-     * @param rotation
+     * @param {Object} [params]
+     * @param {Mat4} [params.translation]
+     * @param {Mat4} [params.scaling]
+     * @param {Mat4} [params.rotation]
      */
     constructor({translation, scaling, rotation} = {}) {
         this.translation = translation || Mat4.empty();
