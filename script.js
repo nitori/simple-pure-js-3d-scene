@@ -102,6 +102,37 @@ function worldToScreen(mvp, v) {
 let angle = 0;
 
 
+let preparedObjects = [];
+
+
+function mulberry32(seed) {
+    // from chatgpt
+    return function () {
+        let t = seed += 0x6D2B79F5;
+        t = Math.imul(t ^ (t >>> 15), t | 1);
+        t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+        return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+}
+
+const random = mulberry32(1234);
+
+function rand(a, b) {
+    return random() * (b - a) + a;
+}
+
+for (let i = 0; i < 30; i++) {
+    const model = new Transform()
+        .withTranslation(rand(-30, 30), rand(-20, 20), rand(-30, 30))
+        .withScaling(rand(0.5, 3.5), rand(0.5, 3.5), rand(0.5, 3.5))
+        .withRotation([rand(0, 1), rand(0, 1), rand(0, 1)], random() * Math.PI * 2);
+
+    preparedObjects.push({
+        model: model,
+        color: '#00ff00',
+    });
+}
+
 function update(delta) {
     // update player movement
     let inputDir = new Vec2(keys["d"] - keys["a"], keys["w"] - keys["s"]);
@@ -152,18 +183,20 @@ function update(delta) {
         .withRotation([0, 1, 0], -angle)
         .withScaling(1, 2, 1);
 
-    let boxMvps = [
-        {mvp: matmul(proj, matmul(view, model)), color: '#ff0000'},
-        {mvp: matmul(proj, matmul(view, model2)), color: '#0000ff'},
+    let objects = [
+        {model: model, color: '#ff0000'},
+        {model: model2, color: '#0000ff'},
+        ...preparedObjects,
     ];
 
     boxMesh.faces.forEach(face => {
         for (let f = 0; f < face.length; f++) {
-            boxMvps.forEach(mvp => {
-                let p1 = worldToScreen(mvp.mvp, boxMesh.points[face[f]]);
-                let p2 = worldToScreen(mvp.mvp, boxMesh.points[face[(f + 1) % face.length]]);
+            objects.forEach(obj => {
+                const mvp = matmul(proj, matmul(view, obj.model));
+                let p1 = worldToScreen(mvp, boxMesh.points[face[f]]);
+                let p2 = worldToScreen(mvp, boxMesh.points[face[(f + 1) % face.length]]);
                 if (p1 !== null && p2 !== null) {
-                    drawLine(p1, p2, mvp.color);
+                    drawLine(p1, p2, obj.color);
                 }
             });
         }
