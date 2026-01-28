@@ -77,11 +77,11 @@ canvas.addEventListener('mousemove', ev => {
 
 let keys = {w: false, a: false, s: false, d: false, shift: false};
 document.addEventListener('keydown', ev => {
-    keys[ev.key] = true;
+    keys[ev.key.toLocaleLowerCase()] = true;
     keys['shift'] = ev.shiftKey;
 });
 document.addEventListener('keyup', ev => {
-    keys[ev.key] = false;
+    keys[ev.key.toLocaleLowerCase()] = false;
     keys['shift'] = ev.shiftKey;
 });
 
