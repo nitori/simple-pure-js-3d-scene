@@ -101,6 +101,19 @@ export class Mat4 {
         return new Mat4(this.vals.map(row => row.map(val => val)));
     }
 
+    rows() {
+        return this.vals;
+    }
+
+    cols() {
+        return [
+            this.vals.map(r => r[0]),
+            this.vals.map(r => r[1]),
+            this.vals.map(r => r[2]),
+            this.vals.map(r => r[3]),
+        ];
+    }
+
     /**
      * @return {Mat4}
      */
@@ -230,15 +243,8 @@ export function matmul(m1, m2) {
 
     if (m2 instanceof Mat4) {
         // mat x mat
-        const r0 = m1.vals[0];
-        const r1 = m1.vals[1];
-        const r2 = m1.vals[2];
-        const r3 = m1.vals[3];
-
-        const c0 = m2.vals.map(r => r[0]);
-        const c1 = m2.vals.map(r => r[1]);
-        const c2 = m2.vals.map(r => r[2]);
-        const c3 = m2.vals.map(r => r[3]);
+        const [r0, r1, r2, r3] = m1.rows();
+        const [c0, c1, c2, c3] = m2.cols();
 
         return new Mat4([
             [dot(r0, c0), dot(r0, c1), dot(r0, c2), dot(r0, c3)],
@@ -249,13 +255,10 @@ export function matmul(m1, m2) {
 
     } else {
         // mat x vec
-        const r0 = m1.vals[0];
-        const r1 = m1.vals[1];
-        const r2 = m1.vals[2];
-        const r3 = m1.vals[3];
+        const [r0, r1, r2, r3] = m1.rows();
 
         if (m2 instanceof Vec3) {
-            m2 = new Vec4(...m2.values(), 1);
+            m2 = m2.vec4();
         }
 
         return new Vec4(dot(r0, m2), dot(r1, m2), dot(r2, m2), dot(r3, m2));
